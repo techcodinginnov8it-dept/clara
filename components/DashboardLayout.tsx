@@ -1,0 +1,102 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { usePathname } from 'next/navigation'
+import { LayoutDashboard, MessageSquare, TrendingUp, Settings, LogOut, ChevronRight, BookOpen, Palette } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname()
+    const [userName, setUserName] = useState('')
+
+    useEffect(() => {
+        fetch('/api/auth/me')
+            .then(res => res.json())
+            .then(data => {
+                if (data.name) setUserName(data.name)
+            })
+            .catch(() => {})
+    }, [])
+
+    const initials = userName
+        ? userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+        : '?'
+
+    return (
+        <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
+            {/* Sidebar */}
+            <aside style={{
+                width: '260px',
+                borderRight: '1px solid var(--border)',
+                padding: '2rem 1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2.5rem',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'blur(10px)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <Image src="/logo-new.jpg" alt="Freedom Builderz Logo" width={60} height={60} style={{ objectFit: 'contain' }} />
+                    <span style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.05em' }}>FREEDOM <br/><span style={{ color: 'var(--primary)' }}>BUILDERZ</span></span>
+                </div>
+
+                <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+                    <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" href="/dashboard" active={pathname === '/dashboard'} />
+                    <SidebarItem icon={<MessageSquare size={20} />} label="Messaging Assistant" href="/dashboard/messaging" active={pathname.startsWith('/dashboard/messaging')} />
+                    <SidebarItem icon={<Palette size={20} />} label="Branding Hub" href="/dashboard/branding" active={pathname.startsWith('/dashboard/branding')} />
+                    <SidebarItem icon={<BookOpen size={20} />} label="Course Architect" href="/dashboard/courses" active={pathname.startsWith('/dashboard/courses')} />
+                    <SidebarItem icon={<TrendingUp size={20} />} label="Performance" href="/dashboard/performance" active={pathname.startsWith('/dashboard/performance')} />
+                    <SidebarItem icon={<Settings size={20} />} label="Settings" href="/dashboard/settings" active={pathname.startsWith('/dashboard/settings')} />
+                </nav>
+
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                    <SidebarItem icon={<LogOut size={20} />} label="Sign Out" href="/login" />
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main style={{ flex: 1, padding: '2.5rem', overflowY: 'auto' }}>
+                <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1 style={{ fontSize: '1.875rem' }}>Clara Portal</h1>
+                        <p style={{ color: 'var(--muted)', marginTop: '0.25rem' }}>
+                            {userName ? `Welcome back, ${userName}.` : 'Welcome back.'}
+                        </p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <ThemeToggle />
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--glass-bg)', padding: '0.5rem 1rem', borderRadius: '40px', border: '1px solid var(--glass-border)' }}>
+                            <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>{userName || 'Loading...'}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Pro Account</div>
+                        </div>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #c2410c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{initials}</div>
+                    </div>
+                </header>
+
+                {children}
+            </main>
+        </div>
+    )
+}
+
+function SidebarItem({ icon, label, active, href }: { icon: React.ReactNode, label: string, active?: boolean, href: string }) {
+    return (
+        <Link href={href} className={active ? "sidebar-item active" : "sidebar-item"} style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius)',
+            color: 'var(--muted)',
+            textDecoration: 'none',
+            fontSize: '0.875rem',
+            fontWeight: '600'
+        }}>
+            {icon}
+            <span>{label}</span>
+        </Link>
+    )
+}

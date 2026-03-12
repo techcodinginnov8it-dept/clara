@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated-client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id          String            @id @default(cuid())
+  name        String?
+  email       String            @unique
+  password    String
+  address     String?
+  originStory OriginStory?
+  marketGap   MarketGap?
+  tribe       TribalIdentity?
+  mechanism   UniqueMechanism?
+  usp         USPStatement?
+  summary     MessagingSummary?
+  courses     GeneratedCourse[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model OriginStory {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  answers        String // JSON stringified array
+  generatedStory String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model MarketGap {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  answers         String // JSON stringified array
+  generatedReport String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model TribalIdentity {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  answers         String // JSON stringified array
+  generatedReport String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model UniqueMechanism {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  answers         String // JSON stringified array
+  generatedReport String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model USPStatement {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  answers         String // JSON stringified array
+  generatedReport String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MessagingSummary {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  answers         String // JSON stringified array
+  generatedReport String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model GeneratedCourse {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  description String
+  pricingTier String
+  tone        String
+  moduleCount Int
+  content     String // JSON string containing intro, modules, and conclusion
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

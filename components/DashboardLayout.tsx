@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, MessageSquare, TrendingUp, Settings, LogOut, BookOpen, Palette, Milestone } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, TrendingUp, Settings, LogOut, BookOpen, Palette, Milestone, Menu, X } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 type UserHeaderState = {
@@ -15,6 +15,7 @@ type UserHeaderState = {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
+    const [mobileNavOpen, setMobileNavOpen] = useState(false)
     const [user, setUser] = useState<UserHeaderState>({
         name: '',
         plan: 'FREE',
@@ -48,29 +49,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
     }, [])
 
+    useEffect(() => {
+        setMobileNavOpen(false)
+    }, [pathname])
+
+    useEffect(() => {
+        document.body.style.overflow = mobileNavOpen ? 'hidden' : ''
+
+        return () => {
+            document.body.style.overflow = ''
+        }
+    }, [mobileNavOpen])
+
     const initials = user.name
         ? user.name.split(' ').map((namePart: string) => namePart[0]).join('').toUpperCase().slice(0, 2)
         : '?'
     const planLabel = user.plan === 'PRO' ? 'Pro Account' : 'Free Account'
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
-            <aside style={{
-                width: '260px',
-                minWidth: '260px',
-                position: 'sticky',
-                top: 0,
-                alignSelf: 'flex-start',
-                height: '100vh',
-                overflowY: 'auto',
-                borderRight: '1px solid var(--border)',
-                padding: '2rem 1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2.5rem',
-                background: 'var(--glass-bg)',
-                backdropFilter: 'blur(10px)'
-            }}>
+        <div className="dashboard-shell">
+            {mobileNavOpen && <button type="button" className="dashboard-overlay" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" />}
+
+            <aside className={mobileNavOpen ? 'dashboard-sidebar open' : 'dashboard-sidebar'}>
                 <div style={{ marginBottom: '1rem' }}>
                     <Image
                         src="/freedom-logo.png"
@@ -80,6 +80,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         style={{ objectFit: 'contain', width: '100%', maxWidth: '220px', height: 'auto' }}
                     />
                 </div>
+
+                <button
+                    type="button"
+                    className="dashboard-close-button"
+                    onClick={() => setMobileNavOpen(false)}
+                    aria-label="Close navigation"
+                >
+                    <X size={18} />
+                </button>
 
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
                     <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" href="/dashboard" active={pathname === '/dashboard'} />
@@ -96,20 +105,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </aside>
 
-            <main style={{ flex: 1, padding: '2.5rem', overflowY: 'auto' }}>
-                <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
+            <main className="dashboard-main">
+                <header className="dashboard-header">
+                    <div className="dashboard-header-title">
+                        <button
+                            type="button"
+                            className="dashboard-menu-button"
+                            onClick={() => setMobileNavOpen(true)}
+                            aria-label="Open navigation"
+                        >
+                            <Menu size={20} />
+                        </button>
                         <h1 style={{ fontSize: '1.875rem' }}>Clara Portal</h1>
                         <p style={{ color: 'var(--muted)', marginTop: '0.25rem' }}>
                             {user.name ? `Welcome back, ${user.name}.` : 'Welcome back.'}
                         </p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className="dashboard-header-actions">
                         <ThemeToggle />
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--glass-bg)', padding: '0.5rem 1rem', borderRadius: '40px', border: '1px solid var(--glass-border)' }}>
+                        <div className="dashboard-user-pill">
                             <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>{user.name || 'Loading...'}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{planLabel}</div>
+                            <div className="dashboard-user-plan">{planLabel}</div>
                         </div>
 
                         <Link

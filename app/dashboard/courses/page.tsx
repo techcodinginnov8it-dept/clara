@@ -310,10 +310,10 @@ Let's start with the transformation you want to create. What specific skill, kno
     if (view === 'start') {
         return (
             <DashboardLayout>
-                <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', paddingTop: '5rem' }}>
+                <div className="course-page-shell" style={{ maxWidth: '800px', textAlign: 'center', paddingTop: 'clamp(1.5rem, 4vw, 5rem)' }}>
                     <div style={{
-                        width: '120px',
-                        height: '120px',
+                        width: 'clamp(84px, 18vw, 120px)',
+                        height: 'clamp(84px, 18vw, 120px)',
                         background: 'linear-gradient(135deg, #f97316 0%, #c2410c 100%)',
                         borderRadius: '50%',
                         display: 'flex',
@@ -324,8 +324,8 @@ Let's start with the transformation you want to create. What specific skill, kno
                         <GraduationCap size={60} color="white" />
                     </div>
 
-                    <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>AI Course Architect</h1>
-                    <p style={{ color: 'var(--muted)', fontSize: '1.25rem', marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem' }}>
+                    <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', marginBottom: '1rem' }}>AI Course Architect</h1>
+                    <p style={{ color: 'var(--muted)', fontSize: 'clamp(1rem, 3.5vw, 1.25rem)', marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem' }}>
                         Let Clara guide you through creating a complete online course with modules, lessons, quizzes, and an AI-generated thumbnail.
                     </p>
 
@@ -350,10 +350,13 @@ Let's start with the transformation you want to create. What specific skill, kno
                         className="btn-primary"
                         style={{
                             fontSize: '1.125rem',
-                            padding: '1rem 3rem',
+                            padding: '1rem clamp(1.25rem, 6vw, 3rem)',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.75rem'
+                            gap: '0.75rem',
+                            width: '100%',
+                            maxWidth: '420px',
+                            justifyContent: 'center'
                         }}
                     >
                         {chatLoading ? (
@@ -378,9 +381,9 @@ Let's start with the transformation you want to create. What specific skill, kno
     if (view === 'chat') {
         return (
             <DashboardLayout>
-                <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+                <div className="course-page-shell" style={{ maxWidth: '900px' }}>
                     <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                        <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
+                        <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                             <Sparkles size={28} color="#fb923c" />
                             Course Design Session with Clara
                         </h2>
@@ -389,12 +392,7 @@ Let's start with the transformation you want to create. What specific skill, kno
                         </p>
                     </div>
 
-                    <div className="glass-card" style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        height: '600px',
-                        overflow: 'hidden'
-                    }}>
+                    <div className="glass-card course-chat-shell">
                         <div style={{
                             flex: 1,
                             overflowY: 'auto',
@@ -411,8 +409,7 @@ Let's start with the transformation you want to create. What specific skill, kno
                                         justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start'
                                     }}
                                 >
-                                    <div style={{
-                                        maxWidth: '75%',
+                                    <div className="course-chat-message" style={{
                                         padding: '1.25rem 1.5rem',
                                         borderRadius: '16px',
                                         background: message.role === 'user'
@@ -509,7 +506,7 @@ Let's start with the transformation you want to create. What specific skill, kno
                                 </div>
                             )}
 
-                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                            <div className="course-chat-input-row">
                                 <textarea
                                     className="input-field"
                                     value={input}
@@ -534,6 +531,7 @@ Let's start with the transformation you want to create. What specific skill, kno
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '0.5rem',
+                                        justifyContent: 'center',
                                         opacity: (!input.trim() || chatLoading) ? 0.5 : 1,
                                         cursor: (!input.trim() || chatLoading) ? 'not-allowed' : 'pointer'
                                     }}
@@ -564,16 +562,16 @@ Let's start with the transformation you want to create. What specific skill, kno
 
         return (
             <DashboardLayout>
-                <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div className="course-page-shell" style={{ maxWidth: '1000px' }}>
+                    <div className="course-viewer-header">
+                        <div className="course-viewer-title">
                             <button onClick={() => setView('library')} style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}><ArrowLeft size={24} /></button>
-                            <div>
-                                <h2 style={{ fontSize: '2rem' }}>{content?.title || selectedCourse.title}</h2>
+                            <div style={{ minWidth: 0 }}>
+                                <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', wordBreak: 'break-word' }}>{content?.title || selectedCourse.title}</h2>
                                 <p style={{ color: '#4ade80', fontSize: '0.875rem', fontWeight: '600' }}>✓ Complete Course Generated</p>
                             </div>
                         </div>
-                        <button onClick={() => downloadCourse(selectedCourse)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <button onClick={() => downloadCourse(selectedCourse)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
                             <Download size={18} /> Download Course
                         </button>
                     </div>
@@ -589,7 +587,7 @@ Let's start with the transformation you want to create. What specific skill, kno
                         </div>
                     )}
 
-                    <div className="glass-card" style={{ padding: '3rem', marginBottom: '2rem' }}>
+                    <div className="glass-card course-viewer-card" style={{ marginBottom: '2rem' }}>
                         {content ? (
                             <>
                                 <div style={{ marginBottom: '3rem' }}>
@@ -609,7 +607,7 @@ Let's start with the transformation you want to create. What specific skill, kno
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                                     {content.modules?.map((mod: any, i: number) => (
-                                        <div key={i} style={{ borderLeft: '3px solid var(--primary)', paddingLeft: '2rem' }}>
+                                        <div key={i} style={{ borderLeft: '3px solid var(--primary)', paddingLeft: 'clamp(1rem, 3vw, 2rem)' }}>
                                             <h4 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Module {i + 1}: {mod.title}</h4>
                                             <p style={{ color: 'var(--muted)', marginBottom: '1.5rem', fontSize: '1rem' }}><b>Learning Outcome:</b> {mod.outcome}</p>
 
@@ -699,13 +697,13 @@ Let's start with the transformation you want to create. What specific skill, kno
     // Library View
     return (
         <DashboardLayout>
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+            <div className="course-page-shell">
+                <div className="course-page-header">
                     <div>
-                        <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>Course Architect</h1>
+                        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', marginBottom: '0.5rem' }}>Course Architect</h1>
                         <p style={{ color: 'var(--muted)' }}>Create comprehensive online courses with AI assistance</p>
                     </div>
-                    <button onClick={() => setView('start')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button onClick={() => setView('start')} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
                         <GraduationCap size={18} /> Architect New Course
                     </button>
                 </div>
@@ -723,7 +721,7 @@ Let's start with the transformation you want to create. What specific skill, kno
                         <p style={{ color: 'var(--muted)', maxWidth: '400px', margin: '0 auto 2rem' }}>Your course library is empty. Click the button above to start creating your first AI-powered course.</p>
                     </div>
                 ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
+                    <div className="course-library-grid">
                         {courses.map(course => {
                             const content = safeParse(course.content)
                             return (
@@ -739,11 +737,11 @@ Let's start with the transformation you want to create. What specific skill, kno
                                         </div>
                                     )}
                                     <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', flex: 1 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                            <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.6rem', background: 'rgba(249,115,22,0.1)', color: 'var(--primary)', borderRadius: '4px', fontWeight: '700', textTransform: 'uppercase' }}>{course.moduleCount} Modules</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                            <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.6rem', background: 'rgba(249,115,22,0.1)', color: 'var(--primary)', borderRadius: '4px', fontWeight: '700', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{course.moduleCount} Modules</span>
                                             <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{new Date(course.createdAt).toLocaleDateString()}</span>
                                         </div>
-                                        <h3 style={{ fontSize: '1.25rem' }}>{content?.title || course.title}</h3>
+                                        <h3 style={{ fontSize: '1.25rem', wordBreak: 'break-word' }}>{content?.title || course.title}</h3>
                                         <p style={{ color: 'var(--muted)', fontSize: '0.875rem', lineHeight: '1.5', flex: 1 }}>{content?.description || course.description}</p>
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
                                             <button onClick={(e) => { e.stopPropagation(); downloadCourse(course); }} className="btn-primary" style={{ padding: '0.5rem', borderRadius: '8px' }}>

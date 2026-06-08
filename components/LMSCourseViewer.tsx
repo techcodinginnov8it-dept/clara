@@ -33,15 +33,9 @@ export default function LMSCourseViewer({ course, onBack, onDownload }: LMSViewe
 
     return (
         <DashboardLayout>
-            <div style={{ display: 'flex', gap: '2rem', height: 'calc(100vh - 100px)', maxWidth: '1600px', margin: '0 auto' }}>
+            <div className="lms-shell">
                 {/* Sidebar Navigation */}
-                <div style={{
-                    width: '320px',
-                    flexShrink: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem'
-                }}>
+                <div className="lms-sidebar">
                     {/* Header */}
                     <div className="glass-card" style={{ padding: '1.5rem' }}>
                         <button
@@ -76,14 +70,7 @@ export default function LMSCourseViewer({ course, onBack, onDownload }: LMSViewe
                     )}
 
                     {/* Module Navigation */}
-                    <div className="glass-card" style={{
-                        padding: '1rem',
-                        flex: 1,
-                        overflowY: 'auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem'
-                    }}>
+                    <div className="glass-card lms-sidebar-scroll">
                         <h4 style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)', marginBottom: '0.5rem' }}>Course Content</h4>
 
                         {content.modules?.map((module: any, moduleIdx: number) => (
@@ -202,13 +189,13 @@ export default function LMSCourseViewer({ course, onBack, onDownload }: LMSViewe
                 </div>
 
                 {/* Main Content Area */}
-                <div style={{ flex: 1, overflowY: 'auto' }}>
-                    <div className="glass-card" style={{ padding: '3rem', minHeight: '100%' }}>
+                <div className="lms-content">
+                    <div className="glass-card lms-content-card" style={{ minHeight: '100%' }}>
                         {/* Course Overview */}
                         {isOverview && (
                             <>
                                 <div style={{ marginBottom: '3rem' }}>
-                                    <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{content.title}</h1>
+                                    <h1 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.5rem)', marginBottom: '1rem', wordBreak: 'break-word' }}>{content.title}</h1>
                                     <div style={{
                                         display: 'inline-block',
                                         padding: '0.5rem 1rem',
@@ -355,7 +342,7 @@ export default function LMSCourseViewer({ course, onBack, onDownload }: LMSViewe
                                         )}
 
                                         {/* Navigation buttons */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                                        <div className="lms-navigation-buttons" style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
                                             <button
                                                 onClick={() => {
                                                     if (activeLessonIndex > 0) {
@@ -372,6 +359,7 @@ export default function LMSCourseViewer({ course, onBack, onDownload }: LMSViewe
                                                     border: '1px solid var(--border)',
                                                     borderRadius: 'var(--radius)',
                                                     color: 'white',
+                                                    width: '100%',
                                                     cursor: activeModuleIndex === 0 && activeLessonIndex === 0 ? 'not-allowed' : 'pointer',
                                                     opacity: activeModuleIndex === 0 && activeLessonIndex === 0 ? 0.5 : 1,
                                                     display: 'flex',
@@ -398,7 +386,9 @@ export default function LMSCourseViewer({ course, onBack, onDownload }: LMSViewe
                                                 style={{
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    gap: '0.5rem'
+                                                    gap: '0.5rem',
+                                                    justifyContent: 'center',
+                                                    width: '100%'
                                                 }}
                                             >
                                                 Next <ArrowRight size={16} />

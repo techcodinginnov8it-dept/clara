@@ -10,6 +10,7 @@ type SettingsForm = {
     address: string
     plan: 'FREE' | 'PRO'
     profilePicture: string
+    profilePictureLabel: string
     tokenCost: number
 }
 
@@ -21,6 +22,7 @@ export default function SettingsPage() {
         address: '',
         plan: 'FREE',
         profilePicture: '',
+        profilePictureLabel: '',
         tokenCost: 0,
     })
     const [loading, setLoading] = useState(true)
@@ -38,6 +40,9 @@ export default function SettingsPage() {
                     address: userData.address || '',
                     plan: userData.plan === 'PRO' ? 'PRO' : 'FREE',
                     profilePicture: userData.profilePicture || '',
+                    profilePictureLabel: userData.profilePicture
+                        ? 'Current profile image'
+                        : '',
                     tokenCost: typeof userData.tokenCost === 'number' ? userData.tokenCost : 0,
                 })
             })
@@ -80,6 +85,7 @@ export default function SettingsPage() {
             setForm((current) => ({
                 ...current,
                 profilePicture: typeof reader.result === 'string' ? reader.result : current.profilePicture,
+                profilePictureLabel: file.name,
             }))
             setError('')
             setMessage('Profile picture selected. Save changes to apply it.')
@@ -115,6 +121,7 @@ export default function SettingsPage() {
                 name: data.user.name || '',
                 address: data.user.address || '',
                 profilePicture: data.user.profilePicture || '',
+                profilePictureLabel: data.user.profilePicture ? 'Saved profile image' : '',
             }))
             setMessage('Settings updated successfully.')
             window.dispatchEvent(new Event('user-profile-updated'))
@@ -219,7 +226,7 @@ export default function SettingsPage() {
                                                 <button
                                                     type="button"
                                                     className="btn-secondary"
-                                                    onClick={() => setForm((current) => ({ ...current, profilePicture: '' }))}
+                                                    onClick={() => setForm((current) => ({ ...current, profilePicture: '', profilePictureLabel: '' }))}
                                                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
                                                 >
                                                     <X size={16} /> Remove
@@ -253,7 +260,7 @@ export default function SettingsPage() {
 
                             <div>
                                 <label style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avatar Preview</label>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.75rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                                     {form.profilePicture ? (
                                         <img
                                             src={form.profilePicture}
@@ -265,9 +272,20 @@ export default function SettingsPage() {
                                             {initials}
                                         </div>
                                     )}
-                                    <p style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>
-                                        {form.profilePicture || 'No profile picture set yet.'}
-                                    </p>
+                                    <div style={{ minWidth: 0, maxWidth: '100%', flex: '1 1 260px' }}>
+                                        <p style={{ fontSize: '0.875rem', color: 'var(--foreground)', fontWeight: '600', wordBreak: 'break-word' }}>
+                                            {form.profilePicture
+                                                ? (form.profilePictureLabel || 'Profile image selected')
+                                                : 'No profile picture set yet.'}
+                                        </p>
+                                        {form.profilePicture && (
+                                            <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem', wordBreak: 'break-word' }}>
+                                                {form.profilePicture.startsWith('data:image/')
+                                                    ? 'Uploaded image ready to save.'
+                                                    : form.profilePicture}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 

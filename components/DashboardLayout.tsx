@@ -105,21 +105,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{planLabel}</div>
                         </div>
 
-                        {user.profilePicture ? (
-                            <img
-                                src={user.profilePicture}
-                                alt={user.name ? `${user.name} avatar` : 'User avatar'}
-                                style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    border: '1px solid var(--glass-border)'
-                                }}
-                            />
-                        ) : (
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #c2410c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{initials}</div>
-                        )}
+                        <Link
+                            href="/dashboard/settings"
+                            aria-label="Open settings"
+                            title="Open settings"
+                            style={{ display: 'inline-flex', textDecoration: 'none' }}
+                        >
+                            {user.profilePicture ? (
+                                <img
+                                    src={user.profilePicture}
+                                    alt={user.name ? `${user.name} avatar` : 'User avatar'}
+                                    style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '50%',
+                                        objectFit: 'cover',
+                                        border: '1px solid var(--glass-border)',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                            ) : (
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #c2410c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', cursor: 'pointer' }}>{initials}</div>
+                            )}
+                        </Link>
                     </div>
                 </header>
 

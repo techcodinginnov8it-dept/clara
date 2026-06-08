@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, MessageSquare, TrendingUp, Settings, LogOut, BookOpen, Palette } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, TrendingUp, Settings, LogOut, BookOpen, Palette, Milestone } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 type UserHeaderState = {
@@ -57,6 +57,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
             <aside style={{
                 width: '260px',
+                minWidth: '260px',
+                position: 'sticky',
+                top: 0,
+                alignSelf: 'flex-start',
+                height: '100vh',
+                overflowY: 'auto',
                 borderRight: '1px solid var(--border)',
                 padding: '2rem 1.5rem',
                 display: 'flex',
@@ -81,6 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <SidebarItem icon={<Palette size={20} />} label="Branding Hub" href="/dashboard/branding" active={pathname.startsWith('/dashboard/branding')} />
                     <SidebarItem icon={<BookOpen size={20} />} label="Course Architect" href="/dashboard/courses" active={pathname.startsWith('/dashboard/courses')} />
                     <SidebarItem icon={<TrendingUp size={20} />} label="Performance" href="/dashboard/performance" active={pathname.startsWith('/dashboard/performance')} />
+                    <SidebarItem icon={<Milestone size={20} />} label="Miles Stone" href="/dashboard/milestone" active={pathname.startsWith('/dashboard/milestone')} />
                     <SidebarItem icon={<Settings size={20} />} label="Settings" href="/dashboard/settings" active={pathname.startsWith('/dashboard/settings')} />
                 </nav>
 

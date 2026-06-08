@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import DashboardLayout from '@/components/DashboardLayout'
-import { ArrowRight, MessageSquare, Zap, Cpu, Sparkles } from 'lucide-react'
+import { ArrowRight, MessageSquare, Zap, Cpu, Sparkles, Milestone } from 'lucide-react'
 
 export default function DashboardPage() {
     return (
@@ -29,6 +29,13 @@ export default function DashboardPage() {
                     icon={<Sparkles size={24} color="#ec4899" />}
                     href="/dashboard/branding"
                     status="Active"
+                />
+                <ModuleCard
+                    title="Miles Stone"
+                    description="See Clara's product audit, what's already live, and the milestones needed to turn it into a durable business."
+                    icon={<Milestone size={24} color="#0f766e" />}
+                    href="/dashboard/milestone"
+                    status="Strategic"
                 />
                 <ModuleCard
                     title="Campaign Optimizer"

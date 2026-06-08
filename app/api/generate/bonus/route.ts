@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import OpenAI from 'openai'
+import { logTokenUsage } from '@/lib/token-cost'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -73,15 +74,13 @@ Include an intro on email best practices, and provide at least 50 highly clickab
 
         // Process token usage logging
         if (completion.usage) {
-            await prisma.tokenUsage.create({
-                data: {
-                    userId: user.id,
-                    endpoint: `bonus/generate-${type}`,
-                    promptTokens: completion.usage.prompt_tokens,
-                    completionTokens: completion.usage.completion_tokens,
-                    totalTokens: completion.usage.total_tokens,
-                    model: completion.model,
-                }
+            await logTokenUsage({
+                userId: user.id,
+                endpoint: `bonus/generate-${type}`,
+                promptTokens: completion.usage.prompt_tokens,
+                completionTokens: completion.usage.completion_tokens,
+                totalTokens: completion.usage.total_tokens,
+                model: completion.model,
             })
         }
 

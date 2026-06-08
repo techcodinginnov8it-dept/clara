@@ -48,6 +48,7 @@ export async function GET() {
             byEndpoint,
             recent,
             totalRequests: usage.length,
+            tokenCost: Number(user.tokenCost.toString()),
         })
     } catch (error) {
         console.error('Token usage error:', error)

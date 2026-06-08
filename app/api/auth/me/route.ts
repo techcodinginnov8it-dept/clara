@@ -11,7 +11,10 @@ export async function GET() {
 
         return NextResponse.json({
             name: user.name || 'User',
-            email: user.email
+            email: user.email,
+            profilePicture: user.profilePicture,
+            plan: user.plan,
+            tokenCost: Number(user.tokenCost.toString())
         })
     } catch (error) {
         console.error('Auth me error:', error)

@@ -31,7 +31,14 @@ export async function POST(request: Request) {
 
         return NextResponse.json({
             success: true,
-            user: { id: user.id, name: user.name, email: user.email }
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                profilePicture: user.profilePicture,
+                plan: user.plan,
+                tokenCost: Number(user.tokenCost.toString())
+            }
         })
 
     } catch (error) {

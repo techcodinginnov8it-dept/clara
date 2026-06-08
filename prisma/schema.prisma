@@ -9,23 +9,31 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum UserPlan {
+  FREE
+  PRO
+}
+
 model User {
-  id          String       @id @default(cuid())
-  name        String?
-  email       String       @unique
-  password    String
-  address     String?
-  originStory OriginStory?
-  marketGap   MarketGap?
-  tribe       TribalIdentity?
-  mechanism   UniqueMechanism?
-  usp         USPStatement?
-  summary     MessagingSummary?
-  courses     GeneratedCourse[]
-  brandBoards BrandBoard[]
-  tokenUsage  TokenUsage[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id             String       @id @default(cuid())
+  name           String?
+  email          String       @unique
+  password       String
+  address        String?
+  profilePicture String?
+  plan           UserPlan     @default(FREE)
+  tokenCost      Decimal      @default(0) @db.Decimal(12, 6)
+  originStory    OriginStory?
+  marketGap      MarketGap?
+  tribe          TribalIdentity?
+  mechanism      UniqueMechanism?
+  usp            USPStatement?
+  summary        MessagingSummary?
+  courses        GeneratedCourse[]
+  brandBoards    BrandBoard[]
+  tokenUsage     TokenUsage[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model OriginStory {

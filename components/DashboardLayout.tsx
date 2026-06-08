@@ -1,32 +1,46 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, MessageSquare, TrendingUp, Settings, LogOut, ChevronRight, BookOpen, Palette } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, TrendingUp, Settings, LogOut, BookOpen, Palette } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
+
+type UserHeaderState = {
+    name: string
+    plan: 'FREE' | 'PRO'
+    profilePicture: string | null
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const [userName, setUserName] = useState('')
+    const [user, setUser] = useState<UserHeaderState>({
+        name: '',
+        plan: 'FREE',
+        profilePicture: null,
+    })
 
     useEffect(() => {
         fetch('/api/auth/me')
             .then(res => res.json())
             .then(data => {
-                if (data.name) setUserName(data.name)
+                setUser({
+                    name: data.name || '',
+                    plan: data.plan === 'PRO' ? 'PRO' : 'FREE',
+                    profilePicture: data.profilePicture || null,
+                })
             })
             .catch(() => {})
     }, [])
 
-    const initials = userName
-        ? userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    const initials = user.name
+        ? user.name.split(' ').map((namePart: string) => namePart[0]).join('').toUpperCase().slice(0, 2)
         : '?'
+    const planLabel = user.plan === 'PRO' ? 'Pro Account' : 'Free Account'
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)' }}>
-            {/* Sidebar */}
             <aside style={{
                 width: '260px',
                 borderRight: '1px solid var(--border)',
@@ -61,23 +75,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </aside>
 
-            {/* Main Content */}
             <main style={{ flex: 1, padding: '2.5rem', overflowY: 'auto' }}>
                 <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                         <h1 style={{ fontSize: '1.875rem' }}>Clara Portal</h1>
                         <p style={{ color: 'var(--muted)', marginTop: '0.25rem' }}>
-                            {userName ? `Welcome back, ${userName}.` : 'Welcome back.'}
+                            {user.name ? `Welcome back, ${user.name}.` : 'Welcome back.'}
                         </p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <ThemeToggle />
-                        
+
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--glass-bg)', padding: '0.5rem 1rem', borderRadius: '40px', border: '1px solid var(--glass-border)' }}>
-                            <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>{userName || 'Loading...'}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Pro Account</div>
+                            <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>{user.name || 'Loading...'}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{planLabel}</div>
                         </div>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #c2410c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{initials}</div>
+
+                        {user.profilePicture ? (
+                            <img
+                                src={user.profilePicture}
+                                alt={user.name ? `${user.name} avatar` : 'User avatar'}
+                                style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover',
+                                    border: '1px solid var(--glass-border)'
+                                }}
+                            />
+                        ) : (
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #c2410c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{initials}</div>
+                        )}
                     </div>
                 </header>
 
@@ -89,7 +117,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
 function SidebarItem({ icon, label, active, href }: { icon: React.ReactNode, label: string, active?: boolean, href: string }) {
     return (
-        <Link href={href} className={active ? "sidebar-item active" : "sidebar-item"} style={{
+        <Link href={href} className={active ? 'sidebar-item active' : 'sidebar-item'} style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.75rem',

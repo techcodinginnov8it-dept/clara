@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { getCurrentUser } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { logTokenUsage } from '@/lib/token-cost'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -131,15 +131,13 @@ ${originalCopy}
                 total_tokens += extractionUsage.total_tokens
             }
 
-            await prisma.tokenUsage.create({
-                data: {
-                    userId: user.id,
-                    endpoint: 'refine-copy',
-                    promptTokens: prompt_tokens,
-                    completionTokens: completion_tokens,
-                    totalTokens: total_tokens,
-                    model: 'gpt-4o-mini'
-                }
+            await logTokenUsage({
+                userId: user.id,
+                endpoint: 'refine-copy',
+                promptTokens: prompt_tokens,
+                completionTokens: completion_tokens,
+                totalTokens: total_tokens,
+                model: 'gpt-4o-mini'
             })
         }
 

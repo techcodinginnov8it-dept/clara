@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/DashboardLayout'
 import AICopyEditor from '@/components/AICopyEditor'
 import SplitPanelLayout from '@/components/SplitPanelLayout'
 import { ArrowLeft, ArrowRight, Download, RefreshCw, Sparkles } from 'lucide-react'
+import { DocumentSection, parseDocumentSections } from '@/lib/document-structure'
 
 const QUESTIONS = [
     "What are the most common approaches or “best practices” your industry teaches?",
@@ -28,6 +29,7 @@ export default function UniqueMechanismPage() {
     const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(""))
     const [generating, setGenerating] = useState(false)
     const [result, setResult] = useState<string | null>(null)
+    const [sections, setSections] = useState<DocumentSection[]>([])
     const [loading, setLoading] = useState(true)
     const [editMode, setEditMode] = useState(false)
 
@@ -38,6 +40,8 @@ export default function UniqueMechanismPage() {
                 const data = await res.json()
                 if (data.answers?.length > 0) setAnswers(data.answers)
                 if (data.report) setResult(data.report)
+                if (Array.isArray(data.sections)) setSections(data.sections)
+                else if (data.report) setSections(parseDocumentSections(data.report))
             } finally {
                 setLoading(false)
             }
@@ -45,12 +49,12 @@ export default function UniqueMechanismPage() {
         fetchData()
     }, [])
 
-    const saveProgress = async (newAnswers: string[], newReport: string | null = null) => {
+    const saveProgress = async (newAnswers: string[], newReport: string | null = null, newSections?: DocumentSection[]) => {
         try {
             await fetch('/api/messaging/mechanism', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ answers: newAnswers, report: newReport })
+                body: JSON.stringify({ answers: newAnswers, report: newReport, sections: newSections })
             })
         } catch (err) { console.error(err) }
     }
@@ -79,7 +83,9 @@ export default function UniqueMechanismPage() {
             })
             const data = await response.json()
             setResult(data.report)
-            saveProgress(answers, data.report)
+            const parsedSections = parseDocumentSections(data.report)
+            setSections(parsedSections)
+            saveProgress(answers, data.report, parsedSections)
         } catch (err) { alert("Error generating blueprint.") }
         finally { setGenerating(false) }
     }
@@ -118,13 +124,18 @@ export default function UniqueMechanismPage() {
                         leftPanel={
                             <AICopyEditor
                                 originalCopy={result}
-                                onSave={(newCopy) => {
+                                originalSections={sections}
+                                onSave={(newCopy, newSections) => {
                                     setResult(newCopy)
-                                    saveProgress(answers, newCopy)
+                                    setSections(newSections)
+                                    saveProgress(answers, newCopy, newSections)
                                     setEditMode(false)
                                 }}
                                 onCancel={() => setEditMode(false)}
-                                onCopyUpdate={(newCopy) => setResult(newCopy)}
+                                onCopyUpdate={(newCopy, newSections) => {
+                                    setResult(newCopy)
+                                    setSections(newSections)
+                                }}
                                 moduleType="unique-mechanism"
                             />
                         }

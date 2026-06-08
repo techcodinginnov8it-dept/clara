@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Send, Sparkles, Check, X, Loader2 } from 'lucide-react'
+import { DocumentSection, parseDocumentSections } from '@/lib/document-structure'
 
 interface Message {
     role: 'user' | 'assistant'
@@ -10,22 +11,26 @@ interface Message {
 
 interface AICopyEditorProps {
     originalCopy: string
-    onSave: (newCopy: string) => void
+    originalSections?: DocumentSection[]
+    onSave: (newCopy: string, newSections: DocumentSection[]) => void
     onCancel: () => void
-    onCopyUpdate?: (newCopy: string) => void
+    onCopyUpdate?: (newCopy: string, newSections: DocumentSection[]) => void
     moduleType: string
 }
 
-export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpdate, moduleType }: AICopyEditorProps) {
+export default function AICopyEditor({ originalCopy, originalSections, onSave, onCancel, onCopyUpdate, moduleType }: AICopyEditorProps) {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'assistant',
-            content: 'Hi! I\'m here to help you refine your copy. Do you want to modify this copy? You can ask me to:\n\n• Change the tone (more professional, casual, inspiring, etc.)\n• Adjust the length (make it shorter or more detailed)\n• Emphasize certain points\n• Rewrite specific sections\n• Or anything else you\'d like to improve!\n\nWhat would you like to change?'
+            content: 'Hi! I am here to refine your copy while preserving its structure.\n\nI will keep the same section order and headings, and only edit the content inside the section(s) you ask for.\n\nBest results come from requests like:\n\n- "Make Intro more powerful"\n- "Shorten Stage 3"\n- "Make Conclusion more premium"\n- "Rewrite Stage 2 to sound more confident"\n\nWhat section would you like to improve?'
         }
     ])
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
     const [currentCopy, setCurrentCopy] = useState(originalCopy)
+    const [currentSections, setCurrentSections] = useState<DocumentSection[]>(
+        originalSections?.length ? originalSections : parseDocumentSections(originalCopy)
+    )
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     const scrollToBottom = () => {
@@ -42,7 +47,6 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
         const userMessage = input.trim()
         setInput('')
 
-        // Add user message
         const newMessages = [...messages, { role: 'user' as const, content: userMessage }]
         setMessages(newMessages)
         setLoading(true)
@@ -53,7 +57,8 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     originalCopy: currentCopy,
-                    conversationHistory: newMessages.slice(0, -1), // Exclude the message we just added
+                    documentSections: currentSections,
+                    conversationHistory: newMessages.slice(0, -1),
                     userMessage,
                     moduleType
                 })
@@ -61,15 +66,15 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
 
             const data = await response.json()
 
-            // Add AI response
             setMessages([...newMessages, { role: 'assistant', content: data.message }])
 
-            // Update copy if changes were made
             if (data.hasChanges && data.updatedCopy) {
                 setCurrentCopy(data.updatedCopy)
-                // Notify parent component to update live preview
+                if (Array.isArray(data.updatedSections)) {
+                    setCurrentSections(data.updatedSections)
+                }
                 if (onCopyUpdate) {
-                    onCopyUpdate(data.updatedCopy)
+                    onCopyUpdate(data.updatedCopy, Array.isArray(data.updatedSections) ? data.updatedSections : currentSections)
                 }
             }
         } catch (error) {
@@ -90,7 +95,7 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
     }
 
     const handleSave = () => {
-        onSave(currentCopy)
+        onSave(currentCopy, currentSections)
     }
 
     return (
@@ -104,7 +109,6 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
             borderRadius: 'var(--radius)',
             overflow: 'hidden'
         }}>
-            {/* Header */}
             <div style={{
                 padding: '1.5rem',
                 borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -149,7 +153,6 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
                 </div>
             </div>
 
-            {/* Messages */}
             <div style={{
                 flex: 1,
                 overflowY: 'auto',
@@ -203,7 +206,6 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
             <div style={{
                 padding: '1.5rem',
                 borderTop: '1px solid var(--glass-border)',
@@ -215,7 +217,7 @@ export default function AICopyEditor({ originalCopy, onSave, onCancel, onCopyUpd
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Ask me to refine your copy..."
+                        placeholder="Example: Make Stage 2 more emotionally compelling..."
                         style={{
                             flex: 1,
                             minHeight: '60px',

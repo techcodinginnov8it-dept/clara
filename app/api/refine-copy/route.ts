@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { getCurrentUser } from '@/lib/auth'
 import { logTokenUsage } from '@/lib/token-cost'
+import { applySectionUpdates, inferTargetSections, parseDocumentSections, rebuildDocumentFromSections } from '@/lib/document-structure'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -14,48 +15,75 @@ interface Message {
 
 export async function POST(request: Request) {
     try {
-        const { originalCopy, conversationHistory, userMessage, moduleType } = await request.json()
+        const { originalCopy, documentSections, conversationHistory, userMessage, moduleType } = await request.json()
+        const availableSections = Array.isArray(documentSections) && documentSections.length
+            ? documentSections
+            : parseDocumentSections(originalCopy)
+        const normalizedSections = availableSections.length ? availableSections : [
+            {
+                id: 'document',
+                heading: 'DOCUMENT',
+                baseHeading: 'DOCUMENT',
+                headingSuffix: null,
+                content: originalCopy.trim(),
+            }
+        ]
+        const targetSectionIds = inferTargetSections(userMessage, normalizedSections)
+        const editableSections = normalizedSections.filter((section) => targetSectionIds.includes(section.id))
+        const recentConversation = Array.isArray(conversationHistory)
+            ? conversationHistory.slice(-6)
+            : []
 
-        // Build the system prompt for copy refinement
         const systemPrompt = `You are Clara, an expert copywriting assistant helping to refine marketing copy for the "${moduleType}" module.
 
-Your role is to:
-1. Listen carefully to the user's requests about how they want to modify their copy
-2. Make the requested changes to the copy
-3. Explain what you changed and why
-4. Be conversational, helpful, and professional
+You are editing a STRUCTURED document section-by-section to reduce token cost and preserve the framework.
 
-CRITICAL FORMATTING RULES:
-- PRESERVE ALL ORIGINAL FORMATTING: Keep section headers, capitalization, bold text, line breaks, and structure EXACTLY as they appear
-- If the original has "INTRO:" keep it as "INTRO:" (all caps with colon)
-- If the original has "Conclusion." keep it as "Conclusion." (capitalized with period)
-- Maintain all blank lines and spacing
-- Keep the same structure and organization
-- Only modify the CONTENT of the sections the user asks you to change, not the formatting
+NON-NEGOTIABLE STRUCTURE RULES:
+- Never remove, reorder, merge, or add sections.
+- Preserve the base section headings and section order exactly.
+- If a heading has a subtitle after an em dash, you may refine ONLY the subtitle after the dash, while preserving the base heading.
+- Do not rewrite untouched sections.
+- Keep the voice and formatting consistent with the existing document.
 
-IMPORTANT RULES:
-- When the user asks you to make changes (e.g., "make it more professional", "shorten it", "make the conclusion longer"), you MUST modify the copy and return the updated version
-- Always return the COMPLETE updated copy with ALL original formatting preserved
-- Be specific about what you changed
-- If the user asks questions or wants advice without requesting changes, provide guidance without modifying the copy
+EDITING RULES:
+- If the request names a section like Intro, Stage 2, Conclusion, or a specific heading, edit only that section.
+- If the request is broad, edit all sections listed as editable.
+- You may improve clarity, tone, persuasiveness, and length inside the editable sections only.
+- You must not output the full document.
+- Return valid JSON only.
 
-When returning updated copy, wrap it in triple backticks like this:
-\`\`\`
-[complete updated copy here with all formatting preserved]
-\`\`\`
+DOCUMENT OUTLINE:
+${normalizedSections.map((section, index) => `${index + 1}. ${section.heading} [${section.id}]`).join('\n')}
 
-Current copy to work with:
----
-${originalCopy}
----`
+EDITABLE SECTIONS:
+${editableSections.map((section) => `SECTION ID: ${section.id}
+BASE HEADING: ${section.baseHeading}
+CURRENT HEADING: ${section.heading}
+CURRENT CONTENT:
+${section.content || '[No body content]'}
+`).join('\n')}
 
-        // Build conversation messages for OpenAI
+CRITICAL:
+- Return updates ONLY for the editable sections listed above.
+- Do not include updates for any other section IDs.
+
+Return JSON in this exact shape:
+{
+  "reply": "Brief explanation of what changed",
+  "updates": [
+    {
+      "sectionId": "section_id_here",
+      "headingSuffix": "optional updated subtitle after the dash only, or null if unchanged",
+      "content": "updated section body only"
+    }
+  ]
+}`
+
         const messages: any[] = [
             { role: 'system', content: systemPrompt }
         ]
 
-        // Add conversation history
-        conversationHistory.forEach((msg: Message) => {
+        recentConversation.forEach((msg: Message) => {
             messages.push({
                 role: msg.role,
                 content: msg.content
@@ -72,79 +100,43 @@ ${originalCopy}
         const completion = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             messages: messages,
-            temperature: 0.7,
-            max_tokens: 2000
+            temperature: 0.4,
+            max_tokens: 1400,
+            response_format: { type: 'json_object' }
         })
 
-        const aiResponse = completion.choices[0].message.content || 'Sorry, I could not generate a response.'
-
-        // Detect if the AI made changes to the copy
-        // We'll use a simple heuristic: if the response contains a code block or the word "updated"
-        const hasChanges = aiResponse.toLowerCase().includes('here') ||
-            aiResponse.toLowerCase().includes('updated') ||
-            aiResponse.toLowerCase().includes("i've") ||
-            aiResponse.includes('---')
-
-        let updatedCopy = originalCopy
-
-        let extractionUsage: OpenAI.Completions.CompletionUsage | undefined;
-        // Try to extract updated copy from the response
-        if (hasChanges) {
-            // Look for copy between --- markers or code blocks
-            const codeBlockMatch = aiResponse.match(/```(?:markdown|text)?\n([\s\S]*?)\n```/)
-            const dashesMatch = aiResponse.match(/---\n([\s\S]*?)\n---/)
-
-            if (codeBlockMatch) {
-                updatedCopy = codeBlockMatch[1].trim()
-            } else if (dashesMatch) {
-                updatedCopy = dashesMatch[1].trim()
-            } else {
-                // Ask AI to provide just the updated copy
-                const extractionCompletion = await openai.chat.completions.create({
-                    model: 'gpt-4o-mini',
-                    messages: [
-                        { role: 'system', content: 'Extract and return ONLY the updated copy from the following response. Return the complete copy without any explanations or markdown formatting.' },
-                        { role: 'user', content: `Original copy:\n${originalCopy}\n\nAI Response:\n${aiResponse}\n\nReturn only the updated copy:` }
-                    ],
-                    temperature: 0.3,
-                    max_tokens: 2000
-                })
-                extractionUsage = extractionCompletion.usage
-
-                const extracted = extractionCompletion.choices[0].message.content?.trim()
-                if (extracted && extracted.length > 50 && extracted !== originalCopy) {
-                    updatedCopy = extracted
-                }
-            }
-        }
+        const parsedResponse = JSON.parse(completion.choices[0].message.content || '{}')
+        const editableSectionIdSet = new Set(editableSections.map((section) => section.id))
+        const updates = Array.isArray(parsedResponse.updates)
+            ? parsedResponse.updates.filter((update: any) =>
+                typeof update?.sectionId === 'string' &&
+                editableSectionIdSet.has(update.sectionId)
+            )
+            : []
+        const updatedSections = applySectionUpdates(normalizedSections, updates)
+        const updatedCopy = rebuildDocumentFromSections(updatedSections)
+        const hasChanges = updatedCopy.trim() !== originalCopy.trim()
+        const aiResponse = parsedResponse.reply || 'I updated the requested section(s) while preserving your document structure.'
 
         // Log token usage
         const user = await getCurrentUser()
         if (user && completion.usage) {
-            let prompt_tokens = completion.usage.prompt_tokens
-            let completion_tokens = completion.usage.completion_tokens
-            let total_tokens = completion.usage.total_tokens
-
-            if (extractionUsage) {
-                prompt_tokens += extractionUsage.prompt_tokens
-                completion_tokens += extractionUsage.completion_tokens
-                total_tokens += extractionUsage.total_tokens
-            }
-
             await logTokenUsage({
                 userId: user.id,
                 endpoint: 'refine-copy',
-                promptTokens: prompt_tokens,
-                completionTokens: completion_tokens,
-                totalTokens: total_tokens,
+                promptTokens: completion.usage.prompt_tokens,
+                completionTokens: completion.usage.completion_tokens,
+                totalTokens: completion.usage.total_tokens,
                 model: 'gpt-4o-mini'
             })
         }
 
         return NextResponse.json({
             message: aiResponse,
-            updatedCopy: hasChanges && updatedCopy !== originalCopy ? updatedCopy : null,
-            hasChanges: hasChanges && updatedCopy !== originalCopy
+            updatedCopy: hasChanges ? updatedCopy : null,
+            hasChanges,
+            editedSections: editableSections.map((section) => section.heading),
+            updatedSections
         })
 
     } catch (error: any) {

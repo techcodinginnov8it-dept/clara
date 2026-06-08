@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/DashboardLayout'
 import AICopyEditor from '@/components/AICopyEditor'
 import SplitPanelLayout from '@/components/SplitPanelLayout'
 import { ArrowLeft, ArrowRight, Save, Download, RefreshCw, CheckCircle2, Sparkles } from 'lucide-react'
+import { DocumentSection, parseDocumentSections } from '@/lib/document-structure'
 
 const QUESTIONS = [
     "Describe your life before you started your business",
@@ -25,6 +26,7 @@ export default function OriginStoryPage() {
     const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(""))
     const [generating, setGenerating] = useState(false)
     const [result, setResult] = useState<string | null>(null)
+    const [sections, setSections] = useState<DocumentSection[]>([])
     const [loading, setLoading] = useState(true)
     const [editMode, setEditMode] = useState(false)
 
@@ -40,6 +42,11 @@ export default function OriginStoryPage() {
                 if (data.story) {
                     setResult(data.story)
                 }
+                if (Array.isArray(data.sections)) {
+                    setSections(data.sections)
+                } else if (data.story) {
+                    setSections(parseDocumentSections(data.story))
+                }
             } catch (err) {
                 console.error("Failed to load saved data")
             } finally {
@@ -49,12 +56,12 @@ export default function OriginStoryPage() {
         fetchData()
     }, [])
 
-    const saveProgress = async (newAnswers: string[], newStory: string | null = null) => {
+    const saveProgress = async (newAnswers: string[], newStory: string | null = null, newSections?: DocumentSection[]) => {
         try {
             await fetch('/api/messaging/origin-story', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ answers: newAnswers, story: newStory })
+                body: JSON.stringify({ answers: newAnswers, story: newStory, sections: newSections })
             })
         } catch (err) {
             console.error("Failed to save progress")
@@ -90,7 +97,9 @@ export default function OriginStoryPage() {
             })
             const data = await response.json()
             setResult(data.story)
-            saveProgress(answers, data.story)
+            const parsedSections = parseDocumentSections(data.story)
+            setSections(parsedSections)
+            saveProgress(answers, data.story, parsedSections)
         } catch (error) {
             alert("Error generating story. Please try again.")
         } finally {
@@ -144,13 +153,18 @@ export default function OriginStoryPage() {
                         leftPanel={
                             <AICopyEditor
                                 originalCopy={result}
-                                onSave={(newCopy) => {
+                                originalSections={sections}
+                                onSave={(newCopy, newSections) => {
                                     setResult(newCopy)
-                                    saveProgress(answers, newCopy)
+                                    setSections(newSections)
+                                    saveProgress(answers, newCopy, newSections)
                                     setEditMode(false)
                                 }}
                                 onCancel={() => setEditMode(false)}
-                                onCopyUpdate={(newCopy) => setResult(newCopy)}
+                                onCopyUpdate={(newCopy, newSections) => {
+                                    setResult(newCopy)
+                                    setSections(newSections)
+                                }}
                                 moduleType="origin-story"
                             />
                         }

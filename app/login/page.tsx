@@ -57,11 +57,11 @@ export default function LoginPage() {
             }}>
                 <div style={{ textAlign: 'center' }}>
                     <Image
-                        src="/logo.jpg"
+                        src="/freedom-logo.png"
                         alt="Freedom Builderz Logo"
-                        width={180}
-                        height={60}
-                        style={{ marginBottom: '1rem', objectFit: 'contain' }}
+                        width={240}
+                        height={47}
+                        style={{ marginBottom: '1rem', objectFit: 'contain', width: '100%', maxWidth: '240px', height: 'auto' }}
                     />
                     <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Welcome to Clara</h1>
                     <p style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>Money Making Messaging Assistant</p>

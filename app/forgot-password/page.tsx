@@ -33,11 +33,11 @@ export default function ForgotPasswordPage() {
             }}>
                 <div style={{ textAlign: 'center' }}>
                     <Image
-                        src="/logo.jpg"
+                        src="/freedom-logo.png"
                         alt="Freedom Builderz Logo"
-                        width={120}
-                        height={40}
-                        style={{ marginBottom: '1rem', objectFit: 'contain' }}
+                        width={220}
+                        height={43}
+                        style={{ marginBottom: '1rem', objectFit: 'contain', width: '100%', maxWidth: '220px', height: 'auto' }}
                     />
                     <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Reset Password</h1>
                     <p style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>

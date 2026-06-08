@@ -37,9 +37,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 background: 'var(--glass-bg)',
                 backdropFilter: 'blur(10px)'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                    <Image src="/logo-new.jpg" alt="Freedom Builderz Logo" width={60} height={60} style={{ objectFit: 'contain' }} />
-                    <span style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.05em' }}>FREEDOM <br/><span style={{ color: 'var(--primary)' }}>BUILDERZ</span></span>
+                <div style={{ marginBottom: '1rem' }}>
+                    <Image
+                        src="/freedom-logo.png"
+                        alt="Freedom Builderz Logo"
+                        width={220}
+                        height={43}
+                        style={{ objectFit: 'contain', width: '100%', maxWidth: '220px', height: 'auto' }}
+                    />
                 </div>
 
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>

@@ -78,11 +78,11 @@ export default function SignupPage() {
             }}>
                 <div style={{ textAlign: 'center' }}>
                     <Image
-                        src="/logo.jpg"
+                        src="/freedom-logo.png"
                         alt="Freedom Builderz Logo"
-                        width={150}
-                        height={50}
-                        style={{ marginBottom: '1rem', objectFit: 'contain' }}
+                        width={240}
+                        height={47}
+                        style={{ marginBottom: '1rem', objectFit: 'contain', width: '100%', maxWidth: '240px', height: 'auto' }}
                     />
                     <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Create Your Account</h1>
                     <p style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>Join the Clara Money Making Ecosystem</p>

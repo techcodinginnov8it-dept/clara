@@ -120,6 +120,23 @@ h3 {
   box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
 }
 
+.btn-secondary {
+  background: transparent;
+  color: var(--foreground);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  border-color: var(--glass-hover-border);
+  background: rgba(249, 115, 22, 0.08);
+}
+
 .logo-container {
   background: #030303; /* Pure dark background for the white transparent logo */
   padding: 1rem;

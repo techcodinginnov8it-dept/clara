@@ -159,7 +159,7 @@ export default function TribalIdentityPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                         <h2>Tribal Identity & Deep Dive Analysis</h2>
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button onClick={() => setEditMode(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: '1px solid var(--border)', color: 'white', padding: '0.5rem 1rem', borderRadius: 'var(--radius)', cursor: 'pointer' }}>
+                            <button onClick={() => setEditMode(true)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}>
                                 <Sparkles size={16} /> Edit with AI
                             </button>
                             <button onClick={downloadReport} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

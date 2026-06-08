@@ -211,12 +211,7 @@ export default function OriginStoryPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.5rem',
-                                    background: 'transparent',
-                                    border: '1px solid var(--border)',
-                                    color: 'white',
                                     padding: '0.5rem 1rem',
-                                    borderRadius: 'var(--radius)',
-                                    cursor: 'pointer'
                                 }}
                             >
                                 <Sparkles size={16} /> Edit with AI

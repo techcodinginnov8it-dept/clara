@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
-import { Activity, Loader2 } from 'lucide-react'
+import { Activity, Loader2, Upload, X } from 'lucide-react'
 
 type SettingsForm = {
     name: string
@@ -14,6 +14,7 @@ type SettingsForm = {
 }
 
 export default function SettingsPage() {
+    const fileInputRef = useRef<HTMLInputElement | null>(null)
     const [form, setForm] = useState<SettingsForm>({
         name: '',
         email: '',
@@ -55,6 +56,35 @@ export default function SettingsPage() {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target
         setForm((current) => ({ ...current, [name]: value }))
+    }
+
+    const handleProfilePictureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+
+        if (!file) {
+            return
+        }
+
+        if (!file.type.startsWith('image/')) {
+            setError('Please upload an image file for your profile picture.')
+            return
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            setError('Please upload an image smaller than 2MB.')
+            return
+        }
+
+        const reader = new FileReader()
+        reader.onload = () => {
+            setForm((current) => ({
+                ...current,
+                profilePicture: typeof reader.result === 'string' ? reader.result : current.profilePicture,
+            }))
+            setError('')
+            setMessage('Profile picture selected. Save changes to apply it.')
+        }
+        reader.readAsDataURL(file)
     }
 
     const handleSave = async (event: React.FormEvent) => {
@@ -168,14 +198,46 @@ export default function SettingsPage() {
                                 </Field>
 
                                 <Field label="Profile Picture URL">
-                                    <input
-                                        name="profilePicture"
-                                        type="url"
-                                        className="input-field"
-                                        value={form.profilePicture}
-                                        onChange={handleChange}
-                                        placeholder="https://example.com/avatar.jpg"
-                                    />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleProfilePictureUpload}
+                                                style={{ display: 'none' }}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="btn-secondary"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                                            >
+                                                <Upload size={16} /> Upload Image
+                                            </button>
+                                            {form.profilePicture && (
+                                                <button
+                                                    type="button"
+                                                    className="btn-secondary"
+                                                    onClick={() => setForm((current) => ({ ...current, profilePicture: '' }))}
+                                                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                                                >
+                                                    <X size={16} /> Remove
+                                                </button>
+                                            )}
+                                        </div>
+                                        <input
+                                            name="profilePicture"
+                                            type="url"
+                                            className="input-field"
+                                            value={form.profilePicture}
+                                            onChange={handleChange}
+                                            placeholder="Or paste an image URL"
+                                        />
+                                        <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                                            Upload an image or paste an image URL. Uploaded images are stored with your profile data.
+                                        </p>
+                                    </div>
                                 </Field>
 
                                 <Field label="Token Cost">

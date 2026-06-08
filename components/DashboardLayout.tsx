@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         profilePicture: null,
     })
 
-    useEffect(() => {
+    const loadUser = () => {
         fetch('/api/auth/me')
             .then(res => res.json())
             .then(data => {
@@ -32,6 +32,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 })
             })
             .catch(() => {})
+    }
+
+    useEffect(() => {
+        loadUser()
+
+        const handleUserProfileUpdated = () => {
+            loadUser()
+        }
+
+        window.addEventListener('user-profile-updated', handleUserProfileUpdated)
+
+        return () => {
+            window.removeEventListener('user-profile-updated', handleUserProfileUpdated)
+        }
     }, [])
 
     const initials = user.name

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { User, Mail, MapPin, Lock, ArrowRight } from 'lucide-react'
+import { User, Mail, Lock, ArrowRight } from 'lucide-react'
 
 export default function SignupPage() {
     const [error, setError] = useState('')
@@ -13,7 +13,6 @@ export default function SignupPage() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        address: '',
         password: '',
         confirmPassword: ''
     })
@@ -36,7 +35,6 @@ export default function SignupPage() {
                 body: JSON.stringify({
                     name: formData.name,
                     email: formData.email,
-                    address: formData.address,
                     password: formData.password
                 })
             })
@@ -112,20 +110,6 @@ export default function SignupPage() {
                             className="input-field"
                             style={{ paddingLeft: '2.5rem' }}
                             value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div style={{ position: 'relative' }}>
-                        <MapPin size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                        <input
-                            name="address"
-                            type="text"
-                            placeholder="Physical Address"
-                            className="input-field"
-                            style={{ paddingLeft: '2.5rem' }}
-                            value={formData.address}
                             onChange={handleChange}
                             required
                         />

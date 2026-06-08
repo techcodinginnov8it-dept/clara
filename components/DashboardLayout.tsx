@@ -124,32 +124,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="dashboard-header-actions">
                         <ThemeToggle />
 
-                        <div className="dashboard-user-pill">
-                            <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>{user.name || 'Loading...'}</div>
-                            <div className="dashboard-user-plan">{planLabel}</div>
-                        </div>
-
                         <Link
                             href="/dashboard/settings"
                             aria-label="Open settings"
                             title="Open settings"
-                            style={{ display: 'inline-flex', textDecoration: 'none' }}
+                            className="dashboard-account-chip"
+                            style={{ textDecoration: 'none' }}
                         >
+                            <div className="dashboard-account-text">
+                                <div className="dashboard-account-name">{user.name || 'Loading...'}</div>
+                                <div className="dashboard-user-plan">{planLabel}</div>
+                            </div>
                             {user.profilePicture ? (
                                 <img
                                     src={user.profilePicture}
                                     alt={user.name ? `${user.name} avatar` : 'User avatar'}
-                                    style={{
-                                        width: '40px',
-                                        height: '40px',
-                                        borderRadius: '50%',
-                                        objectFit: 'cover',
-                                        border: '1px solid var(--glass-border)',
-                                        cursor: 'pointer'
-                                    }}
+                                    className="dashboard-account-avatar"
                                 />
                             ) : (
-                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #c2410c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', cursor: 'pointer' }}>{initials}</div>
+                                <div className="dashboard-account-avatar dashboard-account-avatar-fallback">{initials}</div>
                             )}
                         </Link>
                     </div>

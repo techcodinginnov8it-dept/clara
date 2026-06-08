@@ -14,26 +14,16 @@ export function ThemeToggle() {
     }, [])
 
     if (!mounted) {
-        return <div style={{ width: 36, height: 36 }} />
+        return <div className="theme-toggle-button-placeholder" />
     }
 
     return (
         <button
+            type="button"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: 'var(--foreground)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-            }}
+            className="theme-toggle-button"
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>

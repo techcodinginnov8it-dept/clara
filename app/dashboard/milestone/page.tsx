@@ -10,13 +10,14 @@ const implemented = [
     'Section-aware Edit with AI flow that preserves document structure and now stores structured sections for cheaper, safer revisions.',
     'Branding Hub that turns messaging outputs into a brand board through guided AI conversation and generated visual guidelines.',
     'Course Architect that turns messaging into a course outline, lesson structure, quizzes, and AI-generated thumbnails.',
+    'Course thumbnails now save to a durable public image path instead of depending on expiring OpenAI asset links.',
     'Performance dashboard that tracks token usage by feature and shows recent AI activity.',
 ]
 
 const gaps = [
     'Authentication is still lightweight and needs production-grade session security, password reset, and sign-out hardening.',
     'Billing is only represented as a plan label today. There is no real subscription, entitlement, or upgrade checkout flow yet.',
-    'Profile image uploads currently save directly with profile data, but there is no managed media storage layer yet.',
+    'Profile image uploads still save directly with profile data, and media handling should be normalized into managed storage.',
     'There is no admin console for support, user management, product analytics, or monitoring failed generations.',
     'Generated outputs are useful, but they still need stronger QA, structured templates, and consistency rules across every module.',
 ]
